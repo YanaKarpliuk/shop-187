@@ -1,19 +1,17 @@
 import { Prisma, type $Enums } from '@prisma/client';
 import { prisma } from './client.js';
+import type { Category, RequestedLine, ReturnReason, ReturnStatus } from '../domain/rules.js';
 
 /** The shared client or a transaction handle, so a query can join the submission transaction. */
 export type Db = typeof prisma | Prisma.TransactionClient;
 
 export type OrderWithItems = NonNullable<Awaited<ReturnType<typeof findOrder>>>;
 
-export type ReturnStatus = $Enums.ReturnStatus;
-export type ReturnReason = $Enums.ReturnReason;
-
-export interface ReturnLineRow {
-  orderItemId: number;
-  quantity: number;
-  reason: ReturnReason;
-}
+// Compile-time guard: the domain lists must match the database enums exactly.
+type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
+export const domainMatchesSchema: Same<ReturnReason, $Enums.ReturnReason> &
+  Same<ReturnStatus, $Enums.ReturnStatus> &
+  Same<Category, $Enums.Category> = true;
 
 /**
  * Both fields must match the same order. Returns null on any mismatch.
@@ -51,7 +49,7 @@ export function insertReturnRequest(
   tx: Prisma.TransactionClient,
   orderId: number,
   returnNumber: string,
-  lines: ReturnLineRow[],
+  lines: RequestedLine[],
 ) {
   return tx.returnRequest.create({
     data: {

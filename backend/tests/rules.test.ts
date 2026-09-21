@@ -7,7 +7,7 @@ import {
   type OrderItemState,
   type OrderState,
   type RequestedLine,
-} from '../src/app/rules.js';
+} from '../src/domain/rules.js';
 
 const NOW = new Date('2026-09-18T12:00:00Z');
 

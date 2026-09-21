@@ -42,8 +42,8 @@ validation rules, the React frontend, then one-command startup and the README.
 |--------|----------------------------------------------------------------------------------------|
 | ~0:40  | Reading the ticket, created git repo, working on md files, message for account mananer |
 | ------ | Stopped the timer, waiting fot the account manager's message.                          
-| ~0:15  | Schema and first migration
-| ~      |                                                                                        |
+| ~0:15  | Schema and first migration                                                             
+| ~01:20 | Working on backend: seed, rules, services, routes, tests.                              |
 | ~      |                                                                                        |
 | ~      |                                                                                        |
 

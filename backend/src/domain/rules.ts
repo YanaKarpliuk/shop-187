@@ -3,11 +3,18 @@ export const RETURN_WINDOW_DAYS = 30;
 export const REASONS = ['wrong_item', 'damaged', 'changed_mind', 'other'] as const;
 export type ReturnReason = (typeof REASONS)[number];
 
+export const STATUSES = ['open', 'approved', 'rejected'] as const;
+export type ReturnStatus = (typeof STATUSES)[number];
+
 export type Category = 'food' | 'accessory';
 
-export function isReturnReason(value: unknown): value is ReturnReason {
-  return typeof value === 'string' && (REASONS as readonly string[]).includes(value);
-}
+const isOneOf =
+  <T extends string>(values: readonly T[]) =>
+  (value: unknown): value is T =>
+    typeof value === 'string' && (values as readonly string[]).includes(value);
+
+export const isReturnReason = isOneOf(REASONS);
+export const isReturnStatus = isOneOf(STATUSES);
 
 export interface OrderItemState {
   id: number;

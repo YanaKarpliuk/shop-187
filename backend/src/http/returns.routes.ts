@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { ApiError, badRequest, notFound } from './errors.js';
-import { isReturnReason, type RequestedLine } from '../app/rules.js';
+import { isReturnReason, type RequestedLine } from '../domain/rules.js';
 import {
   buildOrderView,
   createReturnRequest,
   findOrderByCredentials,
-} from '../app/returns.service.js';
-import { ReturnConflict, ReturnRulesViolation } from '../app/errors.js';
+} from '../domain/returns.service.js';
+import { ReturnConflict, ReturnRulesViolation } from '../domain/errors.js';
 
 export const returnsRouter = Router();
 
