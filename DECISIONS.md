@@ -27,13 +27,13 @@ The acceptance criteria I committed to are in [`REFINEMENT.md`](REFINEMENT.md).
 
 **Total: **
 
-| Time  | What                                                                                 |
-|-------|--------------------------------------------------------------------------------------|
-| ~0:40 | Reading the ticket, working on md files, created git repo, message for account mananer |
-| ~     |                                                        
-| ~     | 
-| ~     |                        |
-| ~     |                                                        |
-| ~     |                                            |
+| Time   | What                                                                                   |
+|--------|----------------------------------------------------------------------------------------|
+| ~0:40  | Reading the ticket, created git repo, working on md files, message for account mananer |
+| ------ | Stopped the timer, waiting fot the account manager's message.                          
+| ~      | 
+| ~      |                                                                                        |
+| ~      |                                                                                        |
+| ~      |                                                                                        |
 
 ## Time check after 3h 30m

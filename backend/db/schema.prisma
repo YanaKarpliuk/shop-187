@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Category {
+  food
+  accessory
+}
+
+enum ReturnStatus {
+  open
+  approved
+  rejected
+}
+
+enum ReturnReason {
+  wrong_item
+  damaged
+  changed_mind
+  other
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model Order {
+  id          Int      @id @default(autoincrement())
+  orderNumber String   @unique @map("order_number")
+  email       String
+  orderedAt   DateTime @map("ordered_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  items          OrderItem[]
+  returnRequests ReturnRequest[]
+
+  @@index([orderNumber, email])
+  @@map("orders")
+}
+
+model OrderItem {
+  id       Int      @id @default(autoincrement())
+  orderId  Int      @map("order_id")
+  name     String
+  quantity Int
+  isSale   Boolean  @default(false) @map("is_sale")
+  category Category
+
+  order              Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  returnRequestItems ReturnRequestItem[]
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model ReturnRequest {
+  id           Int          @id @default(autoincrement())
+  orderId      Int          @map("order_id")
+  returnNumber String       @unique @map("return_number")
+  status       ReturnStatus @default(open)
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  order Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  items ReturnRequestItem[]
+
+  @@index([orderId])
+  @@map("return_requests")
+}
+
+model ReturnRequestItem {
+  id              Int          @id @default(autoincrement())
+  returnRequestId Int          @map("return_request_id")
+  orderItemId     Int          @map("order_item_id")
+  quantity        Int
+  reason          ReturnReason
+
+  returnRequest ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  orderItem     OrderItem     @relation(fields: [orderItemId], references: [id], onDelete: Restrict)
+
+  @@index([returnRequestId])
+  @@index([orderItemId])
+  @@map("return_request_items")
+}
