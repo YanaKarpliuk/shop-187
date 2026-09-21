@@ -21,6 +21,17 @@ The acceptance criteria I committed to are in [`REFINEMENT.md`](REFINEMENT.md).
 
 ## Halftime check
 
+**Done so far:**
+- `REFINEMENT.md`: acceptance criteria, open questions, what is moved out.
+- Data model and migrations (4 tables + the return-number sequence).
+- Seed script with the five required scenarios, checked on a fresh database.
+- Customer API: `POST /api/lookup` and `POST /api/returns`, with window, quantity
+  and eligibility rules (incl. the `damaged` override) enforced on the server in a
+  serializable transaction. Checked manually against the seed data.
+
+**Decision: continuing as planned.** The server rules are in place, which was the
+riskiest part. Next: owner routes (list + status change), the automated test for the
+validation rules, the React frontend, then one-command startup and the README.
 
 
 ## Time log
@@ -31,7 +42,7 @@ The acceptance criteria I committed to are in [`REFINEMENT.md`](REFINEMENT.md).
 |--------|----------------------------------------------------------------------------------------|
 | ~0:40  | Reading the ticket, created git repo, working on md files, message for account mananer |
 | ------ | Stopped the timer, waiting fot the account manager's message.                          
-| ~      | 
+| ~0:15  | Schema and first migration
 | ~      |                                                                                        |
 | ~      |                                                                                        |
 | ~      |                                                                                        |
