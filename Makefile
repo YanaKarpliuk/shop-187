@@ -13,7 +13,7 @@ REQUIRE_NODE_20 := node -e 'if (+process.versions.node.split(".")[0] < 20) { \
 	process.exit(1); }'
 
 .DEFAULT_GOAL := help
-.PHONY: help install up up_local reset seed test psql studio
+.PHONY: help install up up_local down_local reset seed test psql studio
 
 help: ## List the available targets
 	@echo 'Teehaus Lindner returns — make targets:'
@@ -54,10 +54,16 @@ studio: ## Browse the data in Prisma Studio (http://localhost:5555)
 	$(BACKEND) npx prisma studio --schema=db/schema.prisma
 
 up_local: ## Postgres in Docker, both dev servers on the host (logs in /tmp)
-	$(COMPOSE) up postgres -d
+	$(COMPOSE) up postgres -d --wait
 	@$(NVM); $(REQUIRE_NODE_20)
 	@$(NVM); echo "  node $$(node -v)"
+	@# Same as the container entrypoint: a fresh volume has no tables otherwise.
+	@$(NVM); cd backend && npx prisma migrate deploy --schema=db/schema.prisma && npm run seed
 	@$(NVM); cd backend  && nohup npm run dev > /tmp/teehaus-backend.log  2>&1 &
 	@$(NVM); cd frontend && nohup npm run dev > /tmp/teehaus-frontend.log 2>&1 &
 	@echo '  api  http://localhost:4000   log /tmp/teehaus-backend.log'
 	@echo '  web  http://localhost:3000   log /tmp/teehaus-frontend.log'
+
+down_local: ## Stop the dev servers started by up_local (Postgres keeps running)
+	-@pkill -f '[t]sx watch src/server.ts' && echo '  stopped api' || true
+	-@pkill -f 'frontend/node_modules/.bin/[v]ite' && echo '  stopped web' || true

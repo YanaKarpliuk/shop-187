@@ -61,7 +61,7 @@ export function isWithinWindow(orderedAt: Date, now: Date = new Date()): boolean
   return now <= deadline;
 }
 
-/** Sale items are final; tea is food and excluded for hygiene (assumption A2). */
+/** Sale items are final; tea is food and excluded for hygiene. */
 export function isExcludedFromReturns(item: Item): boolean {
   return item.isSale || item.category === 'food';
 }

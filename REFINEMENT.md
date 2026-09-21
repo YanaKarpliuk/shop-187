@@ -25,7 +25,7 @@ what I still need from the client, and what I am consciously deferring.
     2. **Quantity** — `0 < requested ≤ (ordered − already requested)`.
     3. **Eligibility**:
         - Sale items: not returnable.
-        - Tea / food category: not returnable (opened food, hygiene). See assumption A2.
+        - Tea / food category: not returnable (opened food, hygiene).
         - Accessories: returnable.
         - **`damaged` overrides the exclusions above**: a damaged item is always
           accepted, even if it is a sale item or tea.
