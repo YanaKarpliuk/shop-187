@@ -1,0 +1,12 @@
+// Typechecks the tests alongside the source. The build config (tsconfig.json)
+// deliberately compiles only src/ with rootDir src, so tests never reach dist/
+// — which also means `tsc --noEmit` on it would not see them. This config is
+// what `npm run typecheck` uses.
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "."
+  },
+  "include": ["src/**/*", "tests/**/*"]
+}
