@@ -115,3 +115,35 @@ validation rules, the React frontend, then one-command startup and the README.
 | ~00:15 | Filling out the docs.                                                                  |
 
 ## Time check after 3h 30m
+
+**Completed** (all Must and Should criteria from `REFINEMENT.md`):
+- **Order lookup** with order number + email. A wrong combination gets the same
+  generic "not found" for both cases; both fields are matched case-insensitively.
+- **Item list** with ordered, already requested and still returnable quantity per
+  item. Outside the 30-day window only the ordered quantity is shown, and nothing
+  can be selected.
+- **Return request**: items, quantity and reason per item, submitted in one go.
+- **Server-side validation**: 30-day window, quantity (ordered minus already
+  requested), sale and tea exclusions with the `damaged` override. All-or-nothing,
+  in a serializable transaction so parallel submissions cannot over-return.
+- **Storage and confirmation**: the request is stored in Postgres and the customer
+  sees a return number (`RET-YYYY-NNNN`, from a sequence).
+- **Owner list**: all requests with status open / approved / rejected, and status
+  changes. Reopening a rejected request is re-checked against the remaining quantity.
+  Unauthenticated, as the ticket allows, with a warning on the page.
+- **Seed script** with the five required scenarios, **unit tests** for the return
+  rules, **Docker Compose** startup with one command, and a **Makefile** for
+  local work.
+
+**Known limitations of this state:**
+- Due to the limited time, I did not manage to properly review the code, so it
+  can contain inconsistencies and issues I have not caught yet.
+- I did not properly test the app in the browser. I quickly checked that the main
+  flows work (finding an order, registering a return, the owner list and status
+  changes), but not every case and error state.
+- I did not check that every Makefile target and Docker command works as
+  expected. `docker compose up --build` is the path I relied on; the other
+  targets may need adjustments.
+- I did not focus enough on SEO and accessibility, so there can be issues there
+  too.
+- The docs were written under time pressure and can be somewhat chaotic.
