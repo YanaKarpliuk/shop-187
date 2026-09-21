@@ -6,6 +6,13 @@ export type ReturnReason = (typeof REASONS)[number];
 export const STATUSES = ['open', 'approved', 'rejected'] as const;
 export type ReturnStatus = (typeof STATUSES)[number];
 
+/** Open and approved requests hold their quantity; a rejected one releases it. */
+export const RESERVING_STATUSES = ['open', 'approved'] as const satisfies readonly ReturnStatus[];
+
+export function reservesQuantity(status: ReturnStatus): boolean {
+  return (RESERVING_STATUSES as readonly ReturnStatus[]).includes(status);
+}
+
 export type Category = 'food' | 'accessory';
 
 const isOneOf =
@@ -87,12 +94,42 @@ function checkLine(
     );
   }
 
-  const remaining = item.quantity - item.alreadyRequested;
+  const remaining = remainingQuantity(item);
   if (line.quantity > remaining) {
     return on('QUANTITY_EXCEEDS_REMAINING', `Only ${remaining} of this item can still be returned.`);
   }
 
   return null;
+}
+
+export function remainingQuantity(item: Pick<OrderItemState, 'quantity' | 'alreadyRequested'>): number {
+  return Math.max(0, item.quantity - item.alreadyRequested);
+}
+
+/**
+ * A rejected request reserves nothing, so its items may have been requested
+ * again since. Reopening or approving it must still fit into what is left.
+ * Only quantity is re-checked: window and eligibility were decided when the
+ * customer submitted, and the owner reversing a decision does not change them.
+ */
+export function checkReinstatement(
+  lines: Pick<RequestedLine, 'orderItemId' | 'quantity'>[],
+  items: OrderItemState[],
+): ValidationError[] {
+  const itemsById = new Map(items.map((item) => [item.id, item]));
+
+  return lines.flatMap((line) => {
+    const item = itemsById.get(line.orderItemId);
+    const remaining = item ? remainingQuantity(item) : 0;
+    if (line.quantity <= remaining) return [];
+    return [
+      {
+        orderItemId: line.orderItemId,
+        code: 'QUANTITY_EXCEEDS_REMAINING',
+        message: `Only ${remaining} of this item are still free; this request needs ${line.quantity}.`,
+      },
+    ];
+  });
 }
 
 /** Collects every violation rather than stopping at the first, so the customer sees them all at once. */

@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import {
+  checkReinstatement,
   isWithinWindow,
   isItemEligible,
   validateReturnRequest,
   RETURN_WINDOW_DAYS,
+  reservesQuantity,
   type OrderItemState,
   type OrderState,
   type RequestedLine,
@@ -199,5 +201,42 @@ describe('validateReturnRequest', () => {
       const [err] = validateReturnRequest(o, [line({ orderItemId: 7 })], NOW).errors;
       expect(err.orderItemId).toBe(7);
     });
+  });
+});
+
+describe('reopening a rejected request', () => {
+  it('only open and approved requests hold quantity', () => {
+    expect(reservesQuantity('open')).toBe(true);
+    expect(reservesQuantity('approved')).toBe(true);
+    expect(reservesQuantity('rejected')).toBe(false);
+  });
+
+  it('allows it when the items are still free', () => {
+    // 4 ordered, 1 held by another request, the rejected one wants 3.
+    const items = [item({ id: 1, quantity: 4, alreadyRequested: 1 })];
+    expect(checkReinstatement([{ orderItemId: 1, quantity: 3 }], items)).toEqual([]);
+  });
+
+  it('blocks it when the freed items were requested again', () => {
+    // 4 ordered, a newer request took 3 after this one (3) was rejected.
+    const items = [item({ id: 1, quantity: 4, alreadyRequested: 3 })];
+    const [err] = checkReinstatement([{ orderItemId: 1, quantity: 3 }], items);
+    expect(err).toMatchObject({ orderItemId: 1, code: 'QUANTITY_EXCEEDS_REMAINING' });
+    expect(err.message).toContain('Only 1');
+  });
+
+  it('reports only the lines that no longer fit', () => {
+    const items = [
+      item({ id: 1, quantity: 2, alreadyRequested: 0 }),
+      item({ id: 2, quantity: 2, alreadyRequested: 2 }),
+    ];
+    const errors = checkReinstatement(
+      [
+        { orderItemId: 1, quantity: 2 },
+        { orderItemId: 2, quantity: 1 },
+      ],
+      items,
+    );
+    expect(errors.map((e) => e.orderItemId)).toEqual([2]);
   });
 });

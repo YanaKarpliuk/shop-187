@@ -1,6 +1,12 @@
 import { Prisma, type $Enums } from '@prisma/client';
 import { prisma } from './client.js';
-import type { Category, RequestedLine, ReturnReason, ReturnStatus } from '../domain/rules.js';
+import {
+  RESERVING_STATUSES,
+  type Category,
+  type RequestedLine,
+  type ReturnReason,
+  type ReturnStatus,
+} from '../domain/rules.js';
 
 /** The shared client or a transaction handle, so a query can join the submission transaction. */
 export type Db = typeof prisma | Prisma.TransactionClient;
@@ -30,7 +36,7 @@ export function findOrder(orderNumber: string, email: string) {
 export async function reservedByItem(orderId: number, db: Db = prisma) {
   const grouped = await db.returnRequestItem.groupBy({
     by: ['orderItemId'],
-    where: { returnRequest: { orderId, status: { in: ['open', 'approved'] } } },
+    where: { returnRequest: { orderId, status: { in: [...RESERVING_STATUSES] } } },
     _sum: { quantity: true },
   });
 
@@ -72,14 +78,18 @@ export function listReturnRequests() {
   });
 }
 
-export function findReturnRequestById(id: number) {
-  return prisma.returnRequest.findUnique({ where: { id } });
+/** With each line's ordered quantity, which a status change has to re-check against. */
+export function findReturnRequestWithItems(id: number, db: Db = prisma) {
+  return db.returnRequest.findUnique({
+    where: { id },
+    include: { items: { include: { orderItem: true } } },
+  });
 }
 
-export async function updateReturnRequestStatus(id: number, status: ReturnStatus) {
-  const { id: updatedId, status: updatedStatus } = await prisma.returnRequest.update({
+export function updateReturnRequestStatus(id: number, status: ReturnStatus, db: Db = prisma) {
+  return db.returnRequest.update({
     where: { id },
     data: { status },
+    select: { id: true, status: true },
   });
-  return { id: updatedId, status: updatedStatus };
 }
