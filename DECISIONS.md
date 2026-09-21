@@ -44,7 +44,7 @@ validation rules, the React frontend, then one-command startup and the README.
 | ------ | Stopped the timer, waiting fot the account manager's message.                          
 | ~0:15  | Schema and first migration                                                             
 | ~01:20 | Working on backend: seed, rules, services, routes, tests.                              |
-| ~      |                                                                                        |
+| ~0:15  | Docker setup and Makefile                                                              |
 | ~      |                                                                                        |
 
 ## Time check after 3h 30m
