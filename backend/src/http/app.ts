@@ -1,6 +1,7 @@
 import express, { type ErrorRequestHandler } from 'express';
 import cors from 'cors';
 import { returnsRouter } from './returns.routes.js';
+import { adminRouter } from './admin.routes.js';
 import { ApiError } from './errors.js';
 
 /** Kept separate from server start so tests can import the app. */
@@ -17,6 +18,7 @@ export function buildApp() {
   app.use(express.json());
   app.get('/api/health', (_req, res) => res.json({ ok: true }));
   app.use('/api', returnsRouter);
+  app.use('/api', adminRouter);
 
   app.use((_req, res) => {
     res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Resource not found.' } });

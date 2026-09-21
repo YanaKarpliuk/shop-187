@@ -1,5 +1,3 @@
-// Every Prisma query. Decides nothing: no eligibility, no window, no status rules.
-
 import { Prisma, type $Enums } from '@prisma/client';
 import { prisma } from './client.js';
 
@@ -8,7 +6,6 @@ export type Db = typeof prisma | Prisma.TransactionClient;
 
 export type OrderWithItems = NonNullable<Awaited<ReturnType<typeof findOrder>>>;
 
-// From Prisma's generated enums, so they cannot drift from db/schema.prisma.
 export type ReturnStatus = $Enums.ReturnStatus;
 export type ReturnReason = $Enums.ReturnReason;
 
@@ -20,22 +17,18 @@ export interface ReturnLineRow {
 
 /**
  * Both fields must match the same order. Returns null on any mismatch.
- *
- * findUnique, not findFirst: order_number carries a unique index, so at most
- * one row can match. It also throws rather than guessing if orderNumber is ever
- * missing, instead of silently matching on email alone.
  */
 export function findOrder(orderNumber: string, email: string) {
   return prisma.order.findUnique({
     where: {
-      orderNumber: orderNumber.trim(),
+      orderNumber: orderNumber.trim().toUpperCase(),
       email: { equals: email.trim(), mode: 'insensitive' },
     },
     include: { items: true },
   });
 }
 
-/** Quantity reserved per order item. Rejected requests release theirs (assumption A4). */
+/** Quantity reserved per order item. Rejected requests release theirs. */
 export async function reservedByItem(orderId: number, db: Db = prisma) {
   const grouped = await db.returnRequestItem.groupBy({
     by: ['orderItemId'],

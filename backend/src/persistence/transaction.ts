@@ -1,5 +1,3 @@
-// Serializable transactions and the retry that makes them usable.
-
 import { Prisma } from '@prisma/client';
 import { prisma } from './client.js';
 
